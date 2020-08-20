@@ -1,40 +1,64 @@
 import React, { useState, useCallback } from 'react';
-import { Text, TextInput, View, Button, FlatList } from 'react-native';
+import { Text, TextInput, Button, View, SafeAreaView, StyleSheet, FlatList } from 'react-native';
 
 const App = () => {
-  const [todo, setTodo] = useState('');
+  const [todo, setTodo] = useState("");
   const [todoList, setTodoList] = useState([]);
 
   const addTodo = useCallback(() => {
-    setTodoList([...todoList, {key: todo}])
+    setTodoList([...todoList, {text: todo}])
     setTodo("")
-  }, [todo, todoList])
+  }, [todo, todoList]);
 
-  const removeTodo = useCallback((todoItem) => {
-    setTodoList(todoList.filter((item) => item.key !== todoItem))
+  const removeTodo = useCallback((text) => {
+    setTodoList(todoList.filter((item) => item.text !== text))
   }, [todoList])
 
+  const renderItem = ({ item }) => (
+    <View style={styles.todoView}>
+      <Text style={{flex: 1}}>{item.text}</Text>
+      <Button title="Remove" onPress={() => removeTodo(item.text)} />
+    </View>
+  );
+
   return (
-    <View style={{padding: 10}}>
-      <View style={{flex: 1, flexDirection: 'row'}}>
-        <TextInput
-          style={{flex: 1}}
-          placeholder="Type here to translate!"
-          onChangeText={text => setTodo(text)}
-          value={todo}
-        />
-        <Button title="Add" onPress={addTodo}></Button>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.editView}>
+        <TextInput style={styles.todoInput} placeholder="할일을 입력하세요~!" value={todo} onChangeText={text => setTodo(text)} />
+        <Button title="Add" onPress={addTodo} />
       </View>
 
       <FlatList
+        style={styles.listView}
         data={todoList}
-        renderItem={({item}) => 
-        <View style={{flex: 1, flexDirection: 'row'}}>
-          <Text style={{flex: 1}}>{item.key}</Text>
-          <Button title="Remove" onPress={() => removeTodo(item.key)}></Button></View>}
+        keyExtractor={(item) => item.text}
+        renderItem={renderItem}
       />
-    </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 10
+  },
+  editView: {
+    flex: 1,
+    flexDirection: "row"
+  },
+  todoInput: {
+    flex: 1,
+    height: 40
+  },
+  todoView: {
+    flex: 1,
+    flexDirection: "row"
+  },
+  listView: {
+    marginTop: 20,
+    flex: 10
+  }
+});
+
 
 export default App;
